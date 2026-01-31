@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Điểm Sinh Viên</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 20px; }
+        .container { max-width: 1200px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; }
+        
+        /* Style cho Form nhập */
+        .input-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-radius: 5px; }
+        input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px; background: #007bff; color: white; border: none; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        button:hover { background: #0056b3; }
+
+        /* Style cho Bảng giống ảnh mẫu */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background-color: #f8f9fa; color: #555; font-weight: bold; }
+        .bg-gray { background-color: #fcfcfc; }
+        .delete-btn { background: #ff4d4d; padding: 3px 8px; font-size: 11px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>QUẢN LÝ KẾT QUẢ HỌC TẬP</h2>
+
+    <div class="input-section">
+        <input type="number" id="hk" placeholder="Học kỳ">
+        <input type="number" id="tc" placeholder="Số tín chỉ" step="0.1">
+        <input type="number" id="cc" placeholder="Chuyên cần">
+        <input type="number" id="kt" placeholder="Kiểm tra">
+        <input type="number" id="thi" placeholder="Điểm thi">
+        <button onclick="addGrade()">Thêm mới</button>
+    </div>
+
+    <table id="gradeTable">
+        <thead>
+            <tr>
+                <th rowspan="2">Học kỳ</th>
+                <th rowspan="2">Số tín chỉ</th>
+                <th colspan="2">Điểm</th>
+                <th colspan="2">Điểm thi</th>
+                <th colspan="2">Điểm thang 10</th>
+                <th colspan="2">Điểm chữ</th>
+                <th rowspan="2">Điểm học phần</th>
+                <th rowspan="2">Điểm thang 4</th>
+                <th rowspan="2">Xóa</th>
+            </tr>
+            <tr>
+                <th>Chuyên cần</th>
+                <th>Kiểm tra</th>
+                <th>Lần 1</th>
+                <th>Lần 2</th>
+                <th>Lần 1</th>
+                <th>Lần 2</th>
+                <th>Lần 1</th>
+                <th>Lần 2</th>
+            </tr>
+        </thead>
+        <tbody id="gradeBody"></tbody>
+    </table>
+</div>
+
+<script>
+    // Hàm tính điểm chữ và hệ 4
+    function quyDoi(diem) {
+        if (diem >= 8.5) return { chu: 'A', he4: 4 };
+        if (diem >= 7.0) return { chu: 'B', he4: 3 };
+        if (diem >= 5.5) return { chu: 'C', he4: 2 };
+        if (diem >= 4.0) return { chu: 'D', he4: 1 };
+        return { chu: 'F', he4: 0 };
+    }
+
+    function addGrade() {
+        const data = {
+            hk: document.getElementById('hk').value,
+            tc: document.getElementById('tc').value,
+            cc: document.getElementById('cc').value,
+            kt: document.getElementById('kt').value,
+            thi: document.getElementById('thi').value
+        };
+
+        if (!data.hk || !data.thi) return alert("Vui lòng nhập đủ!");
+
+        // Tính toán sơ bộ: Điểm HP = (CC*0.1 + KT*0.2 + Thi*0.7) - Đây là ví dụ công thức
+        const d10 = (data.cc * 0.1 + data.kt * 0.2 + data.thi * 0.7).toFixed(1);
+        const doi = quyDoi(d10);
+
+        const record = { ...data, d10, chu: doi.chu, he4: doi.he4 };
+
+        let grades = JSON.parse(localStorage.getItem('myGrades')) || [];
+        grades.push(record);
+        localStorage.setItem('myGrades', JSON.stringify(grades));
+        
+        renderTable();
+    }
+
+    function renderTable() {
+        const grades = JSON.parse(localStorage.getItem('myGrades')) || [];
+        const body = document.getElementById('gradeBody');
+        body.innerHTML = '';
+
+        grades.forEach((g, index) => {
+            body.innerHTML += `
+                <tr>
+                    <td>${g.hk}</td>
+                    <td>${parseFloat(g.tc).toFixed(1)}</td>
+                    <td>${g.cc}</td>
+                    <td>${g.kt}</td>
+                    <td>${g.thi}</td>
+                    <td></td> <td>${g.d10}</td>
+                    <td></td> <td>${g.chu}</td>
+                    <td></td> <td>${g.d10} (${g.chu})</td>
+                    <td>${g.he4}</td>
+                    <td><button class="delete-btn" onclick="deleteGrade(${index})">Xóa</button></td>
+                </tr>
+            `;
+        });
+    }
+
+    function deleteGrade(index) {
+        let grades = JSON.parse(localStorage.getItem('myGrades'));
+        grades.splice(index, 1);
+        localStorage.setItem('myGrades', JSON.stringify(grades));
+        renderTable();
+    }
+
+    window.onload = renderTable;
+</script>
+
+</body>
+</html>
