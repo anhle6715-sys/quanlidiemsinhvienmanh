@@ -31,6 +31,7 @@
 
     <div class="input-section">
         <input type="number" id="hk" placeholder="Học kỳ">
+        <input type="text" id="tenMon" placeholder="Tên môn học">
         <input type="number" id="tc" placeholder="Số tín chỉ" step="0.1">
         <input type="number" id="cc" placeholder="Chuyên cần">
         <input type="number" id="kt" placeholder="Kiểm tra">
@@ -42,6 +43,7 @@
         <thead>
             <tr>
                 <th rowspan="2">Học kỳ</th>
+                <th rowspan="2">Tên môn học</th>
                 <th rowspan="2">Số tín chỉ</th>
                 <th colspan="2">Điểm</th>
                 <th colspan="2">Điểm thi</th>
@@ -79,13 +81,14 @@
     function addGrade() {
         const data = {
             hk: document.getElementById('hk').value,
+            tenMon: document.getElementById('tenMon').value,
             tc: document.getElementById('tc').value,
             cc: document.getElementById('cc').value,
             kt: document.getElementById('kt').value,
             thi: document.getElementById('thi').value
         };
 
-        if (!data.hk || !data.thi) return alert("Vui lòng nhập đủ!");
+        if (!data.hk || !data.thi || !data.tenMon) return alert("Vui lòng nhập đủ!");
 
         // Tính toán sơ bộ: Điểm HP = (CC*0.1 + KT*0.2 + Thi*0.7) - Đây là ví dụ công thức
         const d10 = (data.cc * 0.1 + data.kt * 0.2 + data.thi * 0.7).toFixed(1);
@@ -109,6 +112,7 @@
             body.innerHTML += `
                 <tr>
                     <td>${g.hk}</td>
+                    <td>${g.tenMon}</td>
                     <td>${parseFloat(g.tc).toFixed(1)}</td>
                     <td>${g.cc}</td>
                     <td>${g.kt}</td>
